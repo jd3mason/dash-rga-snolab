@@ -3,6 +3,7 @@ services:
       name: dash-rga-snolab
       env: python
       plan: free
+      region: ohio
       buildCommand: "pip install -r requirements.txt"
       startCommand: "gunicorn dash-rga-snolab:server"
       envVars:
