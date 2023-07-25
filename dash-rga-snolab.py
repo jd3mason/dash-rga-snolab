@@ -68,7 +68,7 @@ PvT_graph = html.Div([
 spectrum_graph = html.Div([
     dcc.Graph(
         id='spectrum-graph',
-        config={'displayModeBar': True}
+        config={'displayModeBar': True, 'toImageButtonOptions': {'height': 675, 'width': 1101}}
     )
 ])
 
@@ -168,7 +168,6 @@ def store_data(contents):
         for i, species in enumerate(RGA_info['Species']):
             species['color'] = species_colors[i]
             species['mass'] = species_masses[i]
-
     else:
         RGA_data = None
         RGA_info = {}
@@ -196,7 +195,8 @@ def update_PvT_plot(stored_data, species_dropdown, RGA_info):
         dff = df.loc[:, species_dropdown_sorted]
         tracelabels = {species['value']: species['label'] for species in RGA_info['Species'] if species['value'] in species_dropdown_sorted}
         species_color_map = {species['value']: species['color'] for species in RGA_info['Species'] if species['value'] in species_dropdown_sorted}
-        date_buttons = [{'count': 2, 'step': 'hour', 'stepmode': 'backward', 'label': '2h'},
+        date_buttons = [{'count': 1, 'step': 'hour', 'stepmode': 'backward', 'label': '1h'},
+                        {'count': 2, 'step': 'hour', 'stepmode': 'backward', 'label': '2h'},
                         {'count': 4, 'step': 'hour', 'stepmode': 'backward', 'label': '4h'},
                         {'count': 6, 'step': 'hour', 'stepmode': 'backward', 'label': '6h'},
                         {'count': 12, 'step': 'hour', 'stepmode': 'backward', 'label': '12h'},
@@ -204,8 +204,8 @@ def update_PvT_plot(stored_data, species_dropdown, RGA_info):
                         {'count': 3, 'step': 'day', 'stepmode': 'backward', 'label': '3d'},
                         {'count': 7, 'step': 'day', 'stepmode': 'backward', 'label': '1w'},
                         {'count': 14, 'step': 'day', 'stepmode': 'backward', 'label': '2w'},
-                        {'count': 1, 'step': 'month', 'stepmode': 'backward', 'label': '1M'}]
-        fig_PvT = px.line(dff, x=dff.index, y=dff.columns, log_y=True, color_discrete_map=species_color_map, markers=True)
+                        {'count': 1, 'step': 'month', 'stepmode': 'backward', 'label': '1m'}]
+        fig_PvT = px.line(dff, x=dff.index, y=dff.columns, log_y=True, color_discrete_map=species_color_map)
         fig_PvT.update_layout(xaxis_title='Time', yaxis_title='Pressure (' + RGA_info['Units'] + ')', legend=dict(title=None))
         fig_PvT.update_layout({'xaxis': {'rangeselector': {'buttons': date_buttons}}})
         fig_PvT.for_each_trace(lambda t: t.update(name = tracelabels[t.name], legendgroup = tracelabels[t.name], hovertemplate = t.hovertemplate.replace(t.name, tracelabels[t.name])))
@@ -306,7 +306,6 @@ def update_concentration_table(spectrum_data, argon_adjust, RGA_info):
         argon_string = str("{:.1f}".format(argon)) + ' ppm' if argon < 10000 else str("{:.5f}".format(argon/10000)) + ' %'
         argon_purity_string = str("{:.1f}".format(argon_purity)) + ' ppm' if argon_purity < 10000 else str("{:.5f}".format(argon_purity/10000)) + ' %'
         table = dbc.Table.from_dataframe(pd.DataFrame({'Species': ['H\u2082O-18', 'N\u2082-28', 'O\u2082-32', 'Ar-40', 'CO\u2082-44', 'Argon purity'], 'Concentration': [water_string, nitrogen_string, oxygen_string, argon_string, carbondioxide_string, argon_purity_string]}))
-
     else:
         table = dbc.Table.from_dataframe(pd.DataFrame({'Species': ['H\u2082O-18', 'N\u2082-28', 'O\u2082-32', 'Ar-40', 'CO\u2082-44', 'Argon purity'], 'Concentration': ['', '', '', '', '', '']}))
         spectrum_summary = {}
