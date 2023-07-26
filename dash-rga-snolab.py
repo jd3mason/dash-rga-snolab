@@ -72,7 +72,9 @@ spectrum_graph = html.Div([
     )
 ])
 
-spectrum_time = html.P(id='spectrum-time',style={'font-size': '17px'})
+spectrum_time = html.P(id='spectrum-time', style={'font-size': '17px'})
+
+excel_filename = html.P(id='excel-filename', style={'font-size': '10px'})
 
 concentration_table = html.Div([
     dbc.Table(
@@ -101,7 +103,7 @@ excel_button = html.Div([
 ])
 
 summary_card = dbc.Card(
-    [spectrum_time, concentration_table, argon_adjust_checklist, excel_button],
+    [spectrum_time, concentration_table, argon_adjust_checklist, excel_button, excel_filename],
     body=True,
     className='mt-1'
 )
@@ -314,15 +316,19 @@ def update_concentration_table(spectrum_data, argon_adjust, RGA_info):
 
 
 @app.callback(
-    Output(component_id='excel-download', component_property='data'),
+    Output(component_id='excel-filename', component_property='children'),
     Input(component_id='excel-button', component_property='n_clicks'),
     State(component_id='spectrum-time', component_property='children'),
     State(component_id='spectrum-summary', component_property='data'),
     prevent_initial_call = True
 )
 def generate_excel_file(n_clicks, spectrum_time, spectrum_summary):
-    output = io.BytesIO()      
-    writer = pd.ExcelWriter(output, engine="xlsxwriter")
+
+    spectrum_datetime = datetime.strptime(spectrum_time, '%b %d, %Y %H:%M:%S')
+    spectrum_time_string = spectrum_datetime.strftime('%Y-%m-%d_%H%M')
+    excel_filename = 'RGAScanPurity_' + spectrum_time_string + '.xlsx'
+
+    writer = pd.ExcelWriter(excel_filename, engine="xlsxwriter")
     workbook = writer.book
     worksheet = workbook.add_worksheet()
 
@@ -443,13 +449,8 @@ def generate_excel_file(n_clicks, spectrum_time, spectrum_summary):
     worksheet.write('L19', '%', formatL19)
 
     writer.close()
-    data = output.getvalue()
-
-    spectrum_datetime = datetime.strptime(spectrum_time, '%b %d, %Y %H:%M:%S')
-    spectrum_time_string = spectrum_datetime.strftime('%Y-%m-%d_%H%M')
-    excel_filename = 'RGAScanPurity_' + spectrum_time_string + '.xlsx'
     
-    return dcc.send_bytes(data, excel_filename)
+    return excel_filename
 
    
 
