@@ -55,8 +55,7 @@ species_dropdown = html.Div(
         placeholder='Species',
         maxHeight=200,
         multi=True,
-        className='m-3',
-        style={'height': '7vh'}
+        className='m-3'
     )
 )
 
@@ -64,7 +63,7 @@ PvT_graph = html.Div([
     dcc.Graph(
         id='PvT-graph',
         config={'displayModeBar': True, 'toImageButtonOptions': {'height': 675, 'width': 1101}},
-        style={'height': '81vh'}
+        style={'height': '78.55vh'}
     )
 ])
 
