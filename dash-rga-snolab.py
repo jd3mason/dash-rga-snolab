@@ -21,13 +21,13 @@ upload_data = html.Div(
         style={
             'width': '100%',
             'height': '11vh',
-            'lineHeight': '60px',
+            'lineHeight': '11vh',
             'borderWidth': '1px',
             'borderStyle': 'dashed',
             'borderRadius': '5px',
             'textAlign': 'center'
         },
-        className='mt-3'
+        className='mt-4'
     ),
 )
 
@@ -55,21 +55,24 @@ species_dropdown = html.Div(
         placeholder='Species',
         maxHeight=200,
         multi=True,
-        className='m-3'
+        className='m-3',
+        style={'height': '7vh'}
     )
 )
 
 PvT_graph = html.Div([
     dcc.Graph(
         id='PvT-graph',
-        config={'displayModeBar': True, 'toImageButtonOptions': {'height': 675, 'width': 1101}}
+        config={'displayModeBar': True, 'toImageButtonOptions': {'height': 675, 'width': 1101}},
+        style={'height': '81vh'}
     )
 ])
 
 spectrum_graph = html.Div([
     dcc.Graph(
         id='spectrum-graph',
-        config={'displayModeBar': True, 'toImageButtonOptions': {'height': 675, 'width': 1101}}
+        config={'displayModeBar': True, 'toImageButtonOptions': {'height': 675, 'width': 1101}},
+        style={'height': '90.8vh'}
     )
 ])
 
@@ -104,12 +107,13 @@ excel_button = html.Div([
 summary_card = dbc.Card(
     [spectrum_time, concentration_table, argon_adjust_checklist, excel_button],
     body=True,
-    className='mt-1'
+    className='mt-1 mb-1',
+    style={'height': '83vh'}
 )
 
 tab1 = dbc.Tab([species_dropdown, PvT_graph], label='PvT')
 tab2 = dbc.Tab([spectrum_graph], label='Spectrum')
-tabs = dbc.Card(dbc.Tabs([tab1, tab2]), className='mt-1')
+tabs = dbc.Card(dbc.Tabs([tab1, tab2]), className='mt-1 mb-1')
 
 
 app.layout = dbc.Container([
@@ -196,16 +200,16 @@ def update_PvT_plot(stored_data, species_dropdown, RGA_info):
         dff = df.loc[:, species_dropdown_sorted]
         tracelabels = {species['value']: species['label'] for species in RGA_info['Species'] if species['value'] in species_dropdown_sorted}
         species_color_map = {species['value']: species['color'] for species in RGA_info['Species'] if species['value'] in species_dropdown_sorted}
-        date_buttons = [{'count': 1, 'step': 'hour', 'stepmode': 'backward', 'label': '1h'},
-                        {'count': 2, 'step': 'hour', 'stepmode': 'backward', 'label': '2h'},
-                        {'count': 4, 'step': 'hour', 'stepmode': 'backward', 'label': '4h'},
-                        {'count': 6, 'step': 'hour', 'stepmode': 'backward', 'label': '6h'},
-                        {'count': 12, 'step': 'hour', 'stepmode': 'backward', 'label': '12h'},
-                        {'count': 1, 'step': 'day', 'stepmode': 'backward', 'label': '1d'},
-                        {'count': 3, 'step': 'day', 'stepmode': 'backward', 'label': '3d'},
-                        {'count': 7, 'step': 'day', 'stepmode': 'backward', 'label': '1w'},
-                        {'count': 14, 'step': 'day', 'stepmode': 'backward', 'label': '2w'},
-                        {'count': 1, 'step': 'month', 'stepmode': 'backward', 'label': '1m'}]
+        date_buttons = [{'count': 1, 'step': 'hour', 'stepmode': 'backward', 'label': '1H'},
+                        {'count': 2, 'step': 'hour', 'stepmode': 'backward', 'label': '2H'},
+                        {'count': 4, 'step': 'hour', 'stepmode': 'backward', 'label': '4H'},
+                        {'count': 6, 'step': 'hour', 'stepmode': 'backward', 'label': '6H'},
+                        {'count': 12, 'step': 'hour', 'stepmode': 'backward', 'label': '12H'},
+                        {'count': 1, 'step': 'day', 'stepmode': 'backward', 'label': '1D'},
+                        {'count': 3, 'step': 'day', 'stepmode': 'backward', 'label': '3D'},
+                        {'count': 7, 'step': 'day', 'stepmode': 'backward', 'label': '1W'},
+                        {'count': 14, 'step': 'day', 'stepmode': 'backward', 'label': '2W'},
+                        {'count': 1, 'step': 'month', 'stepmode': 'backward', 'label': '1M'}]
         fig_PvT = px.line(dff, x=dff.index, y=dff.columns, log_y=True, color_discrete_map=species_color_map)
         fig_PvT.update_layout(xaxis_title='Time', yaxis_title='Pressure (' + RGA_info['Units'] + ')', legend=dict(title=None))
         fig_PvT.update_layout({'xaxis': {'rangeselector': {'buttons': date_buttons}}})
