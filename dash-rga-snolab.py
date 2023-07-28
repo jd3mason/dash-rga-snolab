@@ -27,7 +27,7 @@ upload_data = html.Div(
             'borderRadius': '5px',
             'textAlign': 'center'
         },
-        className='mt-4'
+        className='mt-3'
     ),
 )
 
@@ -62,16 +62,14 @@ species_dropdown = html.Div(
 PvT_graph = html.Div([
     dcc.Graph(
         id='PvT-graph',
-        config={'displayModeBar': True, 'toImageButtonOptions': {'height': 675, 'width': 1101}},
-        style={'height': '78.55vh'}
+        config={'displayModeBar': True, 'toImageButtonOptions': {'height': 675, 'width': 1101}}
     )
 ])
 
 spectrum_graph = html.Div([
     dcc.Graph(
         id='spectrum-graph',
-        config={'displayModeBar': True, 'toImageButtonOptions': {'height': 675, 'width': 1101}},
-        style={'height': '90.8vh'}
+        config={'displayModeBar': True, 'toImageButtonOptions': {'height': 675, 'width': 1101}}
     )
 ])
 
@@ -106,8 +104,7 @@ excel_button = html.Div([
 summary_card = dbc.Card(
     [spectrum_time, concentration_table, argon_adjust_checklist, excel_button],
     body=True,
-    className='mt-1 mb-1',
-    style={'height': '83vh'}
+    className='mt-1 mb-1'
 )
 
 tab1 = dbc.Tab([species_dropdown, PvT_graph], label='PvT')
@@ -123,9 +120,10 @@ app.layout = dbc.Container([
     dcc.Store(id='spectrum'),
     dcc.Download(id='excel-download'),
     dbc.Row([
-        dbc.Col([summary_card, upload_data], width=4),
-        dbc.Col([tabs], width=8)])],
-    className='dbc'
+        dbc.Col([summary_card, upload_data], width=3),
+        dbc.Col([tabs], width=8)], className='g-0', justify='around')],
+    className='dbc',
+    fluid=True
 )
 
 
