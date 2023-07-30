@@ -62,14 +62,16 @@ species_dropdown = html.Div(
 PvT_graph = html.Div([
     dcc.Graph(
         id='PvT-graph',
-        config={'displayModeBar': True, 'toImageButtonOptions': {'height': 675, 'width': 1101}}
+        config={'displayModeBar': True, 'toImageButtonOptions': {'height': 675, 'width': 1101}},
+        style={'height': '78.55vh'}
     )
 ])
 
 spectrum_graph = html.Div([
     dcc.Graph(
         id='spectrum-graph',
-        config={'displayModeBar': True, 'toImageButtonOptions': {'height': 675, 'width': 1101}}
+        config={'displayModeBar': True, 'toImageButtonOptions': {'height': 675, 'width': 1101}},
+        style={'height': '90.8vh'}
     )
 ])
 
@@ -142,7 +144,7 @@ def store_data(contents):
         df.drop(df.columns[[1, 2, 3]], axis=1, inplace=True)
         RGA_data = df.to_dict('records')
 
-        header_lines = [line for i, line in enumerate(decoded.decode('utf-8').split('\r\n')) if i in range(56)]
+        header_lines = [line for i, line in enumerate(decoded.decode('utf-8').split('\r\n')) if i in range(16)]
         RGA_info = {}
         RGA_info['Measurement'] = header_lines[8].split('=')[1].strip().split(' ')[0]
         RGA_info['First mass'] = header_lines[9].split('=')[1].strip()
@@ -151,7 +153,7 @@ def store_data(contents):
         
         species_masses = [12, 13, 14, 15, 16, 17, 18, 20, 28, 29, 30, 32, 36, 38, 40, 44]
         species_labels = ['C-12', 'CH-13', 'N-14', 'N-15', 'O-16', 'OH-17', 'H\u2082O-18', 'Ar-20', 'N\u2082-28', 'N\u2082-29', 'NO\u2093-30', 'O\u2082-32', 'Ar-36', 'Ar-38', 'Ar-40', 'CO\u2082-44']
-        species_colors = ['chocolate', 'brown', 'limegreen', 'lightgreen', 'tomato', 'blue', 'dodgerblue', 'gold', 'mediumseagreen', 'green', 'darkturquoise', 'red', 'purple', 'pink', 'black', 'orange']
+        species_colors = ['chocolate', 'brown', 'limegreen', 'lightgreen', 'tomato', 'blue', 'cornflowerblue', 'gold', 'mediumseagreen', 'green', 'darkturquoise', 'red', 'purple', 'pink', 'black', 'orange']
         species_values = ['Mass ' + str(mass) for mass in species_masses] if RGA_info['Measurement'] == 'Barchart' else ['Mass ' + str(mass) + '.00' for mass in species_masses]
         species_disabled = [not ((mass >= float(RGA_info['First mass'])) & (mass <= float(RGA_info['Last mass']))) for mass in species_masses]
         species_dropdown_keys = ['label', 'value', 'disabled']
@@ -190,7 +192,7 @@ def update_PvT_plot(stored_data, species_dropdown, RGA_info):
         df = pd.DataFrame(stored_data) 
         df['Scan Time'] = pd.to_datetime(df['Scan Time'], format='%d/%m/%y %H:%M:%S.%f')
         df['Scan Time'] = [t.replace(microsecond=0) for t in df['Scan Time']]
-        df.set_index('Scan Time', inplace=True)    
+        df.set_index('Scan Time', inplace=True)
         species_mass_list =[int(species.split(' ')[1]) if RGA_info['Measurement'] == 'Barchart' else float(species.split(' ')[1]) for species in species_dropdown]
         species_mass_list_sorted = sorted(species_mass_list)
         species_dropdown_sorted = ['Mass ' + str(mass) for mass in species_mass_list_sorted] if RGA_info['Measurement'] == 'Barchart' else ['Mass ' + str("{:.2f}".format(mass)) for mass in species_mass_list_sorted]
@@ -212,7 +214,7 @@ def update_PvT_plot(stored_data, species_dropdown, RGA_info):
         fig_PvT.update_layout({'xaxis': {'rangeselector': {'buttons': date_buttons}}})
         fig_PvT.for_each_trace(lambda t: t.update(name = tracelabels[t.name], legendgroup = tracelabels[t.name], hovertemplate = t.hovertemplate.replace(t.name, tracelabels[t.name])))
     else:
-        fig_PvT = px.line(x=[datetime.now()], y=[0], log_y=True, range_y=[1e-5, 1000]) 
+        fig_PvT = px.line(x=[datetime.now()], y=[1e-6], log_y=True, range_y=[1e-5, 1000]) 
         fig_PvT.update_layout(xaxis_title='Time', yaxis_title='Pressure (mbar)')
 
     return fig_PvT
@@ -237,12 +239,12 @@ def update_spectrum_plot(clk_data, stored_data, RGA_info):
         else: spectrum_time = datetime.strftime(df.index[-1], '%Y-%m-%d %H:%M:%S') if clk_data['points'][0]['x'] not in df.index else clk_data['points'][0]['x']
         spectrum_time = datetime.strptime(spectrum_time + ':00', '%Y-%m-%d %H:%M:%S') if spectrum_time.count(':') < 2 else datetime.strptime(spectrum_time, '%Y-%m-%d %H:%M:%S')
         spectrum = df.loc[spectrum_time,:]
-        fig_spectrum = px.bar(x=mass_list, y=spectrum, log_y=True, range_y=[1e-7, 2000]) if RGA_info['Measurement'] == 'Barchart' else px.line(x=mass_list, y=spectrum, log_y=True, range_y=[1e-7, 2000])  
+        fig_spectrum = px.bar(x=mass_list, y=spectrum, log_y=True, range_y=[1e-5, 1000]) if RGA_info['Measurement'] == 'Barchart' else px.line(x=mass_list, y=spectrum, log_y=True, range_y=[1e-5, 1000])  
         fig_spectrum.update_layout(xaxis_title='Mass/Charge', yaxis_title='Pressure (' + RGA_info['Units'] + ')') 
         spectrum_time_string = spectrum_time.strftime('%b %d, %Y %H:%M:%S')
         spectrum_data = spectrum.to_dict()
     else:
-        fig_spectrum = px.line(x=[0], y=[1e-6], log_y=True, range_x=[1, 50],range_y=[1e-7, 2000])  
+        fig_spectrum = px.line(x=[0], y=[1e-6], log_y=True, range_x=[1, 50],range_y=[1e-5, 1000])  
         fig_spectrum.update_layout(xaxis_title='Mass/Charge', yaxis_title='Pressure (mbar)')
         spectrum_time_string = datetime.now().strftime('%b %d, %Y %H:%M:%S')
         spectrum_data=None
